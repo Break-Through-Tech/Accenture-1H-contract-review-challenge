@@ -7,13 +7,15 @@
 ### 👥 **Team Members**
 
 
-| Name             | GitHub Handle | Contribution                                                             |
-|------------------|---------------|--------------------------------------------------------------------------|
-| Erin Sur         | @erinsur      | Data exploration, visualization, overall project coordination            |
-| Jordan Ramirez   | @jramirez     | Data collection, exploratory data analysis (EDA), dataset documentation  |
-| Amina Hassan     | @aminahassan  | Data preprocessing, feature engineering, data validation                 |
-| Priya Mehta      | @pmehta       | Model selection, hyperparameter tuning, model training and optimization  |
-| Chris Park       | @chrispark    | Model evaluation, performance analysis, results interpretation           |
+| Name                | GitHub Handle | Contribution                                                             |
+|---------------------|---------------|--------------------------------------------------------------------------|
+| Erin Sur            | @erinsur      | Data exploration, visualization, overall project coordination            |
+| Aarabhi Kuchi       | @jramirez     | Data collection, exploratory data analysis (EDA), dataset documentation  |
+| Jeslyn Chang        | @aminahassan  | Data preprocessing, feature engineering, data validation                 |
+| Christian De Guzman | @pmehta       | Model selection, hyperparameter tuning, model training and optimization  |
+| Dzifa Thomas        | @chrispark    | Model evaluation, performance analysis, results interpretation           |
+| Safina Thapa        | @chrispark    | Model evaluation, performance analysis, results interpretation           |
+| Jackie Perales      | @chrispark    | Model evaluation, performance analysis, results interpretation           |
 
 ---
 
