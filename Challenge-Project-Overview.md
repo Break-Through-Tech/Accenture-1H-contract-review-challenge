@@ -2,7 +2,8 @@
 # Contract Review Challenge
 
 **Company / Org:** Accenture  
-**Challenge Advisor:** Krol Mathias, kevin.mathias@gmail.com
+**Challenge Advisor:** Krol Mathias, kevin.mathias@gmail.com 
+
 **AI Studio Coach:** Harshini Donepudi, harshini.donepudi@breakthroughtech.org  
 **Program:** Break Through Tech AI Studio - Fall 2026  
 
