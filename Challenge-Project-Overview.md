@@ -45,6 +45,13 @@ Use these milestones to guide your work. Your team will create a GitHub Projects
 **Format:** JSON, Raw Text/PDF  
 **Size:** under 1gb  
 **Location:** https://github.com/TheAtticusProject/cuad  
+The JSON is shaped like [SQuAD 2.0](https://rajpurkar.github.io/SQuAD-explorer/): `data → paragraphs → context + qas → question / answers / is_impossible`. There are two nested tasks:
+
+| Task | Field | What it means |
+|---|---|---|
+| **Presence detection** | `is_impossible` | Does this clause category exist in the contract at all? |
+| **Span extraction** | `answers[].text + answer_start` | If yes, exactly which text is it? |
+**Reference:** CUAD paper — [Hendrycks et al., 2021, arXiv:2103.06268](https://arxiv.org/abs/2103.06268)
 
 ### Key Details
 - Real-world commercial contracts from the CUAD dataset (510 contracts, 41 expert-annotated clause categories), raw text/PDF available.
@@ -56,7 +63,7 @@ Use these milestones to guide your work. Your team will create a GitHub Projects
 **ML Problem Type:** NLP & Classification  
 **Recommended Libraries:** HuggingFace Transformers, PyTorch/TensorFlow, Scikit-learn, Pandas  
 **Evaluation Metrics:** Precision, Recall, F1-Score for classification; Spearman Correlation for risk-ranking alignment.
-
+**Reference:** CUAD paper — [Hendrycks et al., 2021, arXiv:2103.06268](https://arxiv.org/abs/2103.06268)
 ---
 
 ## 📚 Resources to Get Started
@@ -64,8 +71,8 @@ Use these milestones to guide your work. Your team will create a GitHub Projects
 The following resources will help your team understand the problem space and potential technical approaches for this project:
 
 **Background Reading:**
-- [e.g., Link to an article or blog post about the problem domain]
-- [e.g., Link to an industry report or case study]
+- CUAD paper — [Hendrycks et al., 2021, arXiv:2103.06268](https://arxiv.org/abs/2103.06268)
+- [Devlin et al., BERT 2018 §3.2 — SQuAD fine-tuning](https://arxiv.org/abs/1810.04805) — read the passage-chunking section carefully.
 
 **Technical Tutorials:**
 - [e.g., Link to a free tutorial on the ML technique(s) involved]
