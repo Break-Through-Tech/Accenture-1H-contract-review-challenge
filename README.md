@@ -16,7 +16,7 @@
 | Dzifa Thomas        | @chrispark    | Model evaluation, performance analysis, results interpretation           |
 | Safina Thapa        | @chrispark    | Model evaluation, performance analysis, results interpretation           |
 | Jackie Perales      | @chrispark    | Model evaluation, performance analysis, results interpretation           |
-
+| Avigya (Avi) Paudel | @avi161       | Model evaluation, training, optimization, exploratory data analysis (EDA)|
 ---
 
 ## 🎯 **Project Highlights**
