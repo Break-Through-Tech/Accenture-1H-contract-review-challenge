@@ -14,7 +14,7 @@
 | Jeslyn Chang        | @aminahassan  | Data preprocessing, feature engineering, data validation                 |
 | Christian De Guzman | @pmehta       | Model selection, hyperparameter tuning, model training and optimization  |
 | Dzifa Thomas        | @chrispark    | Model evaluation, performance analysis, results interpretation           |
-| Safina Thapa        | @chrispark    | Model evaluation, performance analysis, results interpretation           |
+| Safina Thapa        | @safinathapa  | Data cleaning, preprocessing, and data validation                        |
 | Jackie Perales      | @chrispark    | Model evaluation, performance analysis, results interpretation           |
 | Avigya (Avi) Paudel | @avi161       | Model evaluation, training, optimization, exploratory data analysis (EDA)|
 ---
