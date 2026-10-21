@@ -1,0 +1,44 @@
+{
+ "model": "roberta-base",
+ "tag": "roberta",
+ "mode": "full",
+ "best_epoch": 15,
+ "select_metric": "macro_ap",
+ "best_val": {
+  "train_loss": 0.0142,
+  "val_loss": 0.04128791019320488,
+  "macro_ap": 0.5422856615568149,
+  "micro_ap": 0.7153885357361016,
+  "micro_precision": 0.7510204081632653,
+  "micro_recall": 0.6505598114319388,
+  "micro_f1": 0.6971897694979475,
+  "macro_f1": 0.5122094258429776
+ },
+ "test_at_best_epoch": {
+  "macro_ap": 0.5860272238228201,
+  "micro_ap": 0.7157008961517746,
+  "micro_precision": 0.7564665690580771,
+  "micro_recall": 0.6381226842321943,
+  "micro_f1": 0.6922733363108531,
+  "macro_precision": 0.6359222067746171,
+  "macro_recall": 0.48469369700847303,
+  "macro_f1": 0.5237313847297225,
+  "categories_scored": 40.0
+ },
+ "train_minutes": 13.5,
+ "device": "NVIDIA A100-SXM4-40GB",
+ "config": {
+  "num_epochs": 15,
+  "learning_rate": 2e-05,
+  "effective_batch_size": 16,
+  "max_length": 512,
+  "warmup_ratio": 0.1,
+  "weight_decay": 0.01,
+  "subset": null,
+  "per_device_batch_size": 16,
+  "grad_accum_steps": 1
+ },
+ "text_cleanup": false,
+ "train_chunks": 12112,
+ "checkpoint": "/content/drive/MyDrive/Accenture-1H-contract-review-challenge/models/training/15ep/roberta/best"
+}
