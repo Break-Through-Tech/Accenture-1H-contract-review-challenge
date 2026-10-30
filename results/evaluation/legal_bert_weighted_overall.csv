@@ -1,0 +1,2 @@
+model,threshold,test_chunks,categories,micro_f1,macro_f1
+legal-bert-weighted,0.5,2898,41,0.7082597606435158,0.6415711366410056
