@@ -1,0 +1,14 @@
+category,test_positives,TP,FP,FN,precision,recall,f1
+Unlimited/All-You-Can-Eat-License,5,2,1,3,0.67,0.4,0.5
+Price Restrictions,0,0,2,0,0.0,0.0,0.0
+Third Party Beneficiary,15,7,8,8,0.47,0.47,0.47
+Source Code Escrow,2,2,0,0,1.0,1.0,1.0
+Most Favored Nation,5,1,1,4,0.5,0.2,0.29
+No-Solicit Of Customers,18,10,13,8,0.43,0.56,0.49
+Affiliate License-Licensor,22,10,12,12,0.45,0.45,0.45
+Non-Disparagement,15,7,4,8,0.64,0.47,0.54
+No-Solicit Of Employees,19,17,5,2,0.77,0.89,0.83
+Joint Ip Ownership,15,11,6,4,0.65,0.73,0.69
+Liquidated Damages,28,18,4,10,0.82,0.64,0.72
+Affiliate License-Licensee,31,18,13,13,0.58,0.58,0.58
+Competitive Restriction Exception,31,17,37,14,0.31,0.55,0.4
