@@ -1,0 +1,44 @@
+{
+ "model": "nlpaueb/legal-bert-base-uncased",
+ "tag": "legal-bert",
+ "mode": "full",
+ "best_epoch": 14,
+ "select_metric": "macro_ap",
+ "best_val": {
+  "train_loss": 0.0234,
+  "val_loss": 0.1599801629781723,
+  "macro_ap": 0.6362628891220761,
+  "micro_ap": 0.7449009963842007,
+  "micro_precision": 0.6491935483870968,
+  "micro_recall": 0.7589864466705951,
+  "micro_f1": 0.6998098342841619,
+  "macro_f1": 0.6255956581238031
+ },
+ "test_at_best_epoch": {
+  "macro_ap": 0.6687994905884878,
+  "micro_ap": 0.7420923830790184,
+  "micro_precision": 0.6770442610652663,
+  "micro_recall": 0.7431041580897488,
+  "micro_f1": 0.7085377821393523,
+  "macro_precision": 0.6484021418114436,
+  "macro_recall": 0.6889001144720597,
+  "macro_f1": 0.6576104150570308,
+  "categories_scored": 40.0
+ },
+ "train_minutes": 13.5,
+ "device": "NVIDIA A100-SXM4-40GB",
+ "config": {
+  "num_epochs": 15,
+  "learning_rate": 2e-05,
+  "effective_batch_size": 16,
+  "max_length": 512,
+  "warmup_ratio": 0.1,
+  "weight_decay": 0.01,
+  "subset": null,
+  "per_device_batch_size": 16,
+  "grad_accum_steps": 1
+ },
+ "text_cleanup": true,
+ "train_chunks": 12112,
+ "checkpoint": "/content/drive/MyDrive/Accenture-1H-contract-review-challenge/models/training/15ep/legal-bert-weighted/best"
+}
