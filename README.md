@@ -1,7 +1,5 @@
 # Accenture Contract Review Challenge: Clause Detection and Risk Triage on CUAD
 
-> 💡 **Note for the team:** This is just a template. Update the above title with your AI Studio Challenge Project name. Remove all guidance notes and example text in this template and populate this README with your own content. You can work on this README throughout AI Studio, and get feedback from your AI Studio Coach and Challenge Advisor before finalizing it.  
-
 ---
 
 ### 👥 **Team Members**
@@ -182,6 +180,6 @@ Cite relevant papers, articles, or resources that supported your project.
 
 ---
 
-## 🙏 **Acknowledgements** (Optional but encouraged)
+## 🙏 **Acknowledgements** 
 
 Thank your Challenge Advisor, host company representatives, TA, and others who supported your project.
