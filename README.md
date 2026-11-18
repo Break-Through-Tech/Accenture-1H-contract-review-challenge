@@ -8,9 +8,9 @@
 | Name                | GitHub Handle | Contribution                                                             |
 |---------------------|---------------|--------------------------------------------------------------------------|
 | Erin Sur            | @erinsur      | Data exploration, visualization, overall project coordination            |
-| Aarabhi Kuchi       | @jramirez     | Data collection, exploratory data analysis (EDA), dataset documentation  |
+| Aarabhi Kuchi       | @AarabhiRK    | Data collection, exploratory data analysis (EDA), dataset documentation  |
 | Jeslyn Chang        | @aminahassan  | Data preprocessing, feature engineering, data validation                 |
-| Dzifa Thomas        | @chrispark    | Model evaluation, performance analysis, results interpretation           |
+| Dzifa Thomas        | @dzifathomas  | Model evaluation, performance analysis, results interpretation           |
 | Safina Thapa        | @safinathapa  | Data cleaning, preprocessing, and data validation                        |
 | Jackie Perales      | @jperal246    | Text-to-numbers features, baseline vs. transformer comparison, results write-up |
 | Avigya (Avi) Paudel | @avi161       | Model evaluation, training, optimization, exploratory data analysis (EDA)|
