@@ -1,0 +1,40 @@
+{
+ "model": "nlpaueb/legal-bert-base-uncased",
+ "tag": "legal-bert",
+ "run": "legal-bert-focal-g2-p0.5-c10",
+ "mode": "full",
+ "best_epoch": 15,
+ "select_metric": "macro_ap",
+ "best_val": {
+  "train_loss": 0.0023,
+  "val_loss": 0.05929233506321907,
+  "macro_ap": 0.6535754937821603,
+  "micro_ap": 0.7710906763427883,
+  "micro_precision": 0.7028223574986165,
+  "micro_recall": 0.7483794932233353,
+  "micro_f1": 0.7248858447488584,
+  "macro_f1": 0.6335737984006821
+ },
+ "loss": {
+  "type": "focal",
+  "gamma": 2,
+  "power": 0.5,
+  "cap": 10
+ },
+ "train_minutes": 13.9,
+ "device": "NVIDIA A100-SXM4-40GB",
+ "config": {
+  "num_epochs": 15,
+  "learning_rate": 2e-05,
+  "effective_batch_size": 16,
+  "max_length": 512,
+  "warmup_ratio": 0.1,
+  "weight_decay": 0.01,
+  "subset": null,
+  "per_device_batch_size": 16,
+  "grad_accum_steps": 1
+ },
+ "text_cleanup": true,
+ "train_chunks": 12112,
+ "checkpoint": "/content/drive/MyDrive/Accenture-1H-contract-review-challenge/models/training/15ep/legal-bert-focal-g2-p0.5-c10/best"
+}

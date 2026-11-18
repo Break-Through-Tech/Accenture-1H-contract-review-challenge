@@ -1,0 +1,42 @@
+,val_ap,val_positives
+Affiliate License-Licensee,0.34078749669410185,25
+Affiliate License-Licensor,0.005345095637371211,3
+Agreement Date,0.8147507302202789,64
+Anti-Assignment,0.9177197423213118,95
+Audit Rights,0.815724530341303,60
+Cap On Liability,0.9037267403065479,86
+Change Of Control,0.6088427867730865,37
+Competitive Restriction Exception,0.1811091125204829,14
+Covenant Not To Sue,0.6296103668073153,32
+Document Name,0.8469944385403868,67
+Effective Date,0.7628142683843873,59
+Exclusivity,0.5715275430570723,62
+Expiration Date,0.8428266524063959,81
+Governing Law,0.9762365722717941,70
+Insurance,0.8354904906483485,33
+Ip Ownership Assignment,0.6186187291709654,59
+Irrevocable Or Perpetual License,0.8178053387606081,51
+Joint Ip Ownership,0.46351751039336925,20
+License Grant,0.8289777052663919,127
+Liquidated Damages,0.7851295777843336,14
+Minimum Commitment,0.6451590066702975,56
+Most Favored Nation,0.09811707962248148,4
+No-Solicit Of Customers,0.3549280860187884,8
+No-Solicit Of Employees,0.8215009349624733,13
+Non-Compete,0.7042563687090889,42
+Non-Disparagement,0.4012904492751691,8
+Non-Transferable License,0.6998325329232322,69
+Notice Period To Terminate Renewal,0.8732967604931069,28
+Parties,0.8767676152854973,78
+Post-Termination Services,0.44589080428337335,70
+Price Restrictions,0.16878711483690467,8
+Renewal Term,0.945572614149019,39
+Revenue/Profit Sharing,0.7719724360030459,38
+Rofr/Rofo/Rofn,0.7570970867556039,37
+Source Code Escrow,0.9121572871572874,9
+Termination For Convenience,0.6483847020903761,34
+Third Party Beneficiary,0.4754546084540802,9
+Uncapped Liability,0.5734503345650362,33
+Unlimited/All-You-Can-Eat-License,0.4783015645282503,5
+Volume Restriction,0.25865065795634373,19
+Warranty Duration,0.5896281716177134,31
