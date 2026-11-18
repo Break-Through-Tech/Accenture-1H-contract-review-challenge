@@ -2,3 +2,6 @@ Accenture.venv/
 .venv/
 data/processed/roberta_dataset/
 models/
+data/processed_lb/
+data/processed_mb/
+.DS_Store

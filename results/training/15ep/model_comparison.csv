@@ -1,4 +1,3 @@
-model,best_epoch,val_macro_ap,val_micro_f1,val_macro_f1,test_micro_f1,test_macro_f1,train_minutes,chosen
-roberta,15.0,0.5422856615568149,0.6971897694979475,0.5122094258429776,0.6922733363108531,0.5237313847297225,13.5,False
-legal-bert,15.0,0.5927194564428832,0.7137809187279152,0.5321789014319807,0.7026540710751237,0.5691608652819121,13.5,True
-tf-idf baseline,,,,,0.591,0.517,,
+run,loss,learning_rate,epochs,best_epoch,val_macro_ap,val_macro_f1,val_micro_f1,val_contract_macro_f1,test_macro_f1,test_micro_f1,test_contract_macro_f1,train_minutes
+legal-bert-focal-optuna,focal gamma2 power0.5 cap10,5.833508124642314e-05,20.0,17.0,0.6983364408492616,0.662182672013206,0.7436332767402377,0.7868988918065324,,,,18.1
+tf-idf baseline,,,,,,,,,0.517,0.591,,

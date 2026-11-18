@@ -1,0 +1,54 @@
+{
+ "model": "nlpaueb/legal-bert-base-uncased",
+ "tag": "legal-bert",
+ "run": "legal-bert-focal-optuna-seed43",
+ "mode": "full",
+ "best_epoch": 13,
+ "select_metric": "macro_ap",
+ "best_val": {
+  "train_loss": 0.001,
+  "val_loss": 0.07337502390146255,
+  "macro_ap": 0.6772703320672193,
+  "micro_ap": 0.7720780639549218,
+  "micro_precision": 0.6957219251336898,
+  "micro_recall": 0.7666470241602829,
+  "micro_f1": 0.7294645360246705,
+  "macro_f1": 0.6540897222832939
+ },
+ "val_contract": {
+  "micro_precision": 0.8638920134983127,
+  "micro_recall": 0.8899188876013905,
+  "micro_f1": 0.8767123287671232,
+  "macro_precision": 0.7797439082553059,
+  "macro_recall": 0.8420142300024959,
+  "macro_f1": 0.7960638982873779,
+  "contracts": 61.0
+ },
+ "loss": {
+  "type": "focal",
+  "gamma": 2,
+  "power": 0.5,
+  "cap": 10,
+  "learning_rate": 5.833508124642314e-05,
+  "num_epochs": 20,
+  "warmup_ratio": 0.027812682368409187,
+  "weight_decay": 0.09767852842594692
+ },
+ "train_minutes": 18.1,
+ "device": "NVIDIA A100-SXM4-40GB",
+ "config": {
+  "num_epochs": 20,
+  "learning_rate": 5.833508124642314e-05,
+  "effective_batch_size": 16,
+  "max_length": 512,
+  "warmup_ratio": 0.027812682368409187,
+  "weight_decay": 0.09767852842594692,
+  "subset": null,
+  "per_device_batch_size": 16,
+  "grad_accum_steps": 1
+ },
+ "text_cleanup": true,
+ "train_chunks": 12112,
+ "checkpoint": "/content/drive/MyDrive/Accenture-1H-contract-review-challenge/models/training/15ep/legal-bert-focal-optuna-seed43/best",
+ "optuna_trial": 0
+}

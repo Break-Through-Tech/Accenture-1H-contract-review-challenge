@@ -1,0 +1,39 @@
+{
+ "model": "nlpaueb/legal-bert-base-uncased",
+ "tag": "legal-bert",
+ "run": "legal-bert-w-p0.5-c20",
+ "mode": "full",
+ "best_epoch": 12,
+ "select_metric": "macro_ap",
+ "best_val": {
+  "train_loss": 0.0289,
+  "val_loss": 0.17405131459236145,
+  "macro_ap": 0.6364235820569856,
+  "micro_ap": 0.7387165475169818,
+  "micro_precision": 0.624031007751938,
+  "micro_recall": 0.7589864466705951,
+  "micro_f1": 0.6849242222813081,
+  "macro_f1": 0.6085704995462959
+ },
+ "loss": {
+  "type": "weighted_bce",
+  "power": 0.5,
+  "cap": 20
+ },
+ "train_minutes": 43.1,
+ "device": "NVIDIA L4",
+ "config": {
+  "num_epochs": 15,
+  "learning_rate": 2e-05,
+  "effective_batch_size": 16,
+  "max_length": 512,
+  "warmup_ratio": 0.1,
+  "weight_decay": 0.01,
+  "subset": null,
+  "per_device_batch_size": 8,
+  "grad_accum_steps": 2
+ },
+ "text_cleanup": true,
+ "train_chunks": 12112,
+ "checkpoint": "/content/drive/MyDrive/Accenture-1H-contract-review-challenge/models/training/15ep/legal-bert-w-p0.5-c20/best"
+}

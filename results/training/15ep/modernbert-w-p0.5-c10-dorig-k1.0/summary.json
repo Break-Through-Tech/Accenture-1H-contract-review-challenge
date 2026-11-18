@@ -1,0 +1,52 @@
+{
+ "model": "answerdotai/ModernBERT-base",
+ "tag": "modernbert",
+ "run": "modernbert-w-p0.5-c10-dorig-k1.0",
+ "mode": "full",
+ "data": "orig",
+ "keep": 1.0,
+ "best_epoch": 8,
+ "select_metric": "macro_ap",
+ "best_val": {
+  "train_loss": 0.0026,
+  "val_loss": 0.2552932798862457,
+  "macro_ap": 0.6543195597751197,
+  "micro_ap": 0.7599220694209938,
+  "micro_precision": 0.7844950213371266,
+  "micro_recall": 0.6499705362404242,
+  "micro_f1": 0.7109249113760877,
+  "macro_f1": 0.5840652047726367
+ },
+ "val_contract": {
+  "micro_precision": 0.8953488372093024,
+  "micro_recall": 0.8030127462340672,
+  "micro_f1": 0.8466707391569945,
+  "macro_precision": 0.7631412285934362,
+  "macro_recall": 0.6749377015409754,
+  "macro_f1": 0.7000549651133117,
+  "contracts": 61.0
+ },
+ "loss": {
+  "type": "weighted_bce",
+  "power": 0.5,
+  "cap": 10
+ },
+ "train_minutes": 22.2,
+ "device": "NVIDIA A100-SXM4-40GB",
+ "config": {
+  "num_epochs": 15,
+  "learning_rate": 2e-05,
+  "effective_batch_size": 16,
+  "max_length": 512,
+  "warmup_ratio": 0.1,
+  "weight_decay": 0.01,
+  "subset": null,
+  "per_device_batch_size": 16,
+  "grad_accum_steps": 1
+ },
+ "max_length": 512,
+ "learning_rate": 5e-05,
+ "text_cleanup": false,
+ "train_chunks": 12112,
+ "checkpoint": "/content/drive/MyDrive/Accenture-1H-contract-review-challenge/models/training/15ep/modernbert-w-p0.5-c10-dorig-k1.0/best"
+}

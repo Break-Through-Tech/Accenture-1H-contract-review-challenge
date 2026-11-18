@@ -1,0 +1,37 @@
+{
+ "trial": 2,
+ "params": {
+  "model": "legal-bert",
+  "loss": "focal",
+  "gamma": 2,
+  "power": 0.5,
+  "cap": 10,
+  "learning_rate": 1.3225317293225397e-05,
+  "num_epochs": 10,
+  "warmup_ratio": 0.011616722433639893,
+  "weight_decay": 0.08661761457749352
+ },
+ "pruned": false,
+ "best_epoch": 9,
+ "epochs_run": 10,
+ "best_val": {
+  "train_loss": 0.0098,
+  "val_loss": 0.0408858098089695,
+  "macro_ap": 0.6251391018321484,
+  "micro_ap": 0.7523818029591418,
+  "micro_precision": 0.583738400353513,
+  "micro_recall": 0.7784325279905716,
+  "micro_f1": 0.6671717171717172,
+  "macro_f1": 0.5848161656707923
+ },
+ "train_minutes": 9.0,
+ "val_contract": {
+  "micro_precision": 0.7778864970645792,
+  "micro_recall": 0.9212050984936269,
+  "micro_f1": 0.843501326259947,
+  "macro_precision": 0.6725221627985459,
+  "macro_recall": 0.8194521899436105,
+  "macro_f1": 0.722303499762236,
+  "contracts": 61.0
+ }
+}
