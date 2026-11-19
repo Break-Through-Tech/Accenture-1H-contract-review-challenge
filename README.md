@@ -9,7 +9,7 @@
 |---------------------|---------------|--------------------------------------------------------------------------|
 | Erin Sur            | @erinsur      | Data exploration, visualization, overall project coordination            |
 | Aarabhi Kuchi       | @AarabhiRK    | Data collection, exploratory data analysis (EDA), dataset documentation  |
-| Jeslyn Chang        | @aminahassan  | Data preprocessing, feature engineering, data validation                 |
+| Jeslyn Chang        | @se1yu  | Data preprocessing, feature engineering, data validation                 |
 | Dzifa Thomas        | @dzifathomas  | Model evaluation, performance analysis, results interpretation           |
 | Safina Thapa        | @safinathapa  | Data cleaning, preprocessing, and data validation                        |
 | Jackie Perales      | @jperal246    | Text-to-numbers features, baseline vs. transformer comparison, results write-up |
