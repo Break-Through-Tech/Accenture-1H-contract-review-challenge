@@ -50,5 +50,25 @@
  "text_cleanup": true,
  "train_chunks": 12112,
  "checkpoint": "/content/drive/MyDrive/Accenture-1H-contract-review-challenge/models/training/15ep/legal-bert-focal-optuna/best",
- "optuna_trial": 5
+ "optuna_trial": 5,
+ "test_at_best_epoch": {
+  "macro_ap": 0.705140652357721,
+  "micro_ap": 0.7702862962159909,
+  "micro_precision": 0.7197953561589925,
+  "micro_recall": 0.7529847673939893,
+  "micro_f1": 0.7360160965794769,
+  "macro_precision": 0.6849524538257643,
+  "macro_recall": 0.675910149258972,
+  "macro_f1": 0.6656900025398357,
+  "categories_scored": 40.0
+ },
+ "test_contract": {
+  "micro_precision": 0.8731631863882444,
+  "micro_recall": 0.907556270096463,
+  "micro_f1": 0.8900275916436736,
+  "macro_precision": 0.7970231155151166,
+  "macro_recall": 0.8269566292765533,
+  "macro_f1": 0.8022929235322106,
+  "contracts": 102.0
+ }
 }
