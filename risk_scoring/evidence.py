@@ -1,0 +1,195 @@
+"""Extract candidate passages for review."""
+import hashlib
+import math
+import re
+from collections.abc import Mapping
+
+from .cues import CUES
+
+# Matches the training notebook; provisional until threshold provenance is verified.
+DEFAULT_THRESHOLD = 0.5
+CUE_VERSION = '0.6-provisional'
+BOUNDARY = re.compile(r'(?<=[.!?])[ \t]+|\n[ \t]*\n+')
+QUALIFIER = re.compile(r'\b(?:except|notwithstanding|provided that|subject to|unless|however|section|schedule|exhibit)\b', re.I)
+
+
+OPERATIVE = re.compile(r"\b(?:shall|may|will|must|is|are|has|have|grants?|agrees?|acknowledges?|assigns?|pays?|provides?|maintains?|appl(?:y|ies)|means|includes?|constitutes?|continues?|permits?|covers?|audit(?=\s+(?:all|only|such|the|records))|inspect(?=\s+(?:all|only|such|the|records)))\b", re.I)
+
+
+def is_heading(text):
+    if re.fullmatch(r'\s*(?:\([a-z0-9]+\)\s*)?(?:additional\s+)?actions?\s+to\s+assign\s+interests?[.:]?\s*', text, re.I):
+        return True
+    return len(text.split()) <= 16 and not OPERATIVE.search(text)
+
+
+def is_contents_entry(text):
+    return not OPERATIVE.search(text) and bool(re.search(
+        r'\.{3,}|\btable of contents\b|\b\d+\s+(?:Section|Article)\s+\d|[A-Za-z]\s+\d+\s*$', text, re.I))
+
+
+def following_provision(text, start, end, source, chunk_start):
+    extended = text
+    for offset in range(chunk_start + len(text), chunk_start + len(text) + 2000):
+        if offset not in source:
+            break
+        extended += source[offset]
+    following = [(end + a, end + b) for a, b in _segments(extended[end:])
+                 if extended[end + a:end + b].strip()]
+    if not following:
+        return end, False
+    next_start, next_end = following[0]
+    passage = extended[next_start:next_end].strip()
+    if is_contents_entry(passage) or is_heading(passage):
+        return end, False
+    recovered_end = next_end
+    for next_start, next_end in following[1:]:
+        passage = extended[next_start:next_end].strip()
+        if not QUALIFIER.search(passage):
+            break
+        qualification = re.match(r'(?:except|unless|however|notwithstanding|provided that|subject to)\b', passage, re.I)
+        if is_contents_entry(passage) or (is_heading(passage) and not qualification):
+            break
+        recovered_end = next_end
+    complete = extended[:recovered_end].rstrip().endswith(('.', '!', '?'))
+    # A full buffer ending mid-provision is not a reliable clause boundary.
+    if recovered_end == len(extended) and chunk_start + len(extended) in source:
+        complete = False
+    return recovered_end, complete
+
+
+def _segments(text):
+    start = 0
+    for match in BOUNDARY.finditer(text):
+        if re.search(r'\b(?:Inc|Ltd|Corp|Co|Mr|Mrs|Dr|e\.g|i\.e)\.$', text[:match.start()], re.I):
+            continue
+        if match.start() > start:
+            yield start, match.start()
+        start = match.end()
+    if start < len(text):
+        yield start, len(text)
+
+
+def _thresholds(categories, threshold):
+    if isinstance(threshold, Mapping):
+        if set(threshold) != set(categories):
+            raise ValueError('Threshold mapping must cover every category exactly')
+        values = dict(threshold)
+    else:
+        values = dict.fromkeys(categories, threshold)
+    if any(isinstance(value, bool) or not isinstance(value, (int, float))
+           or not math.isfinite(value) or not 0 <= value <= 1 for value in values.values()):
+        raise ValueError('Thresholds must be finite numbers in [0, 1]')
+    return values
+
+
+def _source_maps(frame):
+    """Check overlapping text and retain original character positions."""
+    source_maps = {}
+    for title, chunks in frame.groupby('title', sort=True):
+        source = {}
+        for row in chunks.itertuples(index=False):
+            for offset, char in enumerate(row.chunk_text, int(row.char_start)):
+                if offset in source and source[offset] != char:
+                    raise ValueError(f'Inconsistent overlapping source text: {title}')
+                source[offset] = char
+        source_maps[title] = source
+    return source_maps
+
+
+def extract_evidence(frame, categories, threshold=DEFAULT_THRESHOLD,
+                     threshold_status='provisional', threshold_source='configurable default; training notebook uses 0.5'):
+    """Extract reviewable passages from the validated loader output."""
+    if set(categories) != set(CUES):
+        raise ValueError('Localization cues must match categories exactly')
+    thresholds = _thresholds(categories, threshold)
+    sources = _source_maps(frame)
+    candidates = []
+    for row in frame.sort_values(['title', 'chunk_id']).to_dict('records'):
+        text = row['chunk_text']
+        segments = list(_segments(text))
+        for category in categories:
+            probability = float(row[category])
+            if probability < thresholds[category]:
+                continue
+            cue = re.compile(CUES[category], re.I)
+            matches = [index for index, (start, end) in enumerate(segments) if cue.search(text[start:end])]
+            spans = []
+            for index in matches:
+                start, end = segments[index]
+                passage = text[start:end]
+                if is_contents_entry(passage):
+                    localization = 'table_of_contents'
+                elif is_heading(passage):
+                    end, complete = following_provision(text, start, end, sources[row['title']], int(row['char_start']))
+                    localization = ('heuristic_passage' if complete else 'incomplete_provision') if end > segments[index][1] else 'heading_only'
+                else:
+                    localization = 'heuristic_passage'
+                if localization == 'heuristic_passage' and end == segments[index][1] and index + 1 < len(segments):
+                    next_start, next_end = segments[index + 1]
+                    if QUALIFIER.search(text[next_start:next_end]):
+                        end = next_end
+                spans.append((start, end, localization))
+            if not spans:
+                spans = [(0, len(text), 'chunk_fallback')]
+            for start, end, localization in spans:
+                reasons = set()
+                if localization != 'heuristic_passage':
+                    reasons.add({'chunk_fallback': 'no_localization_cue', 'heading_only': 'heading_without_provision', 'table_of_contents': 'table_of_contents_entry', 'incomplete_provision': 'incomplete_recovered_provision'}[localization])
+                span_text = ''.join(sources[row['title']][offset] for offset in range(int(row['char_start']) + start, int(row['char_start']) + end))
+                if start == 0 and row['char_start'] > 0 and sources[row['title']].get(int(row['char_start']) - 1, '') not in '.!?\n':
+                    reasons.add('incomplete_left_context')
+                if end >= len(text) and not span_text.rstrip().endswith(('.', '!', '?')):
+                    reasons.add('incomplete_right_context')
+                if QUALIFIER.search(span_text):
+                    reasons.add('qualification_or_reference_requires_review')
+                candidates.append(dict(title=row['title'], category=category,
+                    char_start=int(row['char_start']) + start, char_end=int(row['char_start']) + end,
+                    localization=localization, reasons=reasons,
+                    support={int(row['chunk_id']): probability}))
+    # Merge overlapping spans, not adjacent or repeated text at different offsets.
+    merged = []
+    sort_fields = ('title', 'category', 'localization', 'char_start', 'char_end')
+    for item in sorted(candidates, key=lambda candidate: tuple(candidate[field] for field in sort_fields)):
+        if (merged and all(merged[-1][field] == item[field] for field in ('title', 'category', 'localization'))
+                and item['char_start'] < merged[-1]['char_end']):
+            previous = merged[-1]
+            if (previous['char_start'], previous['char_end']) != (item['char_start'], item['char_end']):
+                previous['reasons'].add('overlapping_candidate_boundaries_merged')
+            previous['char_end'] = max(previous['char_end'], item['char_end'])
+            previous['support'].update(item['support'])
+            previous['reasons'].update(item['reasons'])
+        else:
+            merged.append(item)
+    results = []
+    for item in merged:
+        title, category = item['title'], item['category']
+        start, end = item['char_start'], item['char_end']
+        source = sources[title]
+        original_text = ''.join(source[index] for index in range(start, end))
+        identity = f'{title}\0{category}\0{start}\0{end}\0{item["localization"]}'
+        results.append({
+            'evidence_id': hashlib.sha256(identity.encode()).hexdigest()[:24],
+            'contract_id': title, 'title': title, 'category': category,
+            'original_text': original_text, 'char_start': start, 'char_end': end,
+            'supporting_chunk_ids': sorted(item['support']),
+            'supporting_predictions': [{'chunk_id': chunk_id, 'probability': item['support'][chunk_id]} for chunk_id in sorted(item['support'])],
+            'max_detection_probability': max(item['support'].values()),
+            'probability_semantics': 'chunk-level category presence; not risk or calibrated passage confidence',
+            'threshold': thresholds[category], 'threshold_status': threshold_status,
+            'threshold_source': threshold_source, 'cue_version': CUE_VERSION,
+            'localization': item['localization'],
+            'usable_for_scoring': item['localization'] == 'heuristic_passage' and not ({'incomplete_left_context', 'incomplete_right_context'} & item['reasons']),
+            'needs_review': bool(item['reasons']),
+            'limitations': ['heuristic_localization_not_verified'],
+            'review_reasons': sorted(item['reasons']),
+        })
+    # Fallback regions may duplicate localized passages; leave that decision to review.
+    for item in results:
+        if item['localization'] == 'chunk_fallback' and any(
+            other['contract_id'] == item['contract_id'] and other['category'] == item['category']
+            and other['localization'] == 'heuristic_passage'
+            and max(item['char_start'], other['char_start']) < min(item['char_end'], other['char_end'])
+            for other in results
+        ):
+            item['review_reasons'].append('may_duplicate_localized_evidence_do_not_count_separately')
+    return results
