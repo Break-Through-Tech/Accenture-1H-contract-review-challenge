@@ -79,7 +79,7 @@ class AuditFixTests(unittest.TestCase):
             p, c = pd.read_parquet(predictions), pd.read_parquet(chunks)
             p.loc[p.title == 'synthetic-no-detection', 'Agreement Date'] = .9
             for title, text in [('synthetic-no-detection', 'This agreement is dated today.'),
-                                ('synthetic-medium', 'The parties audit all books and records. Audit rights apply.')]:
+                                ('synthetic-medium', 'The parties audit all books and records. Customer may inspect Supplier records.')]:
                 c.loc[c.title == title, 'chunk_text'] = text
                 c.loc[c.title == title, 'char_end'] = len(text)
             p.to_parquet(predictions, index=False)

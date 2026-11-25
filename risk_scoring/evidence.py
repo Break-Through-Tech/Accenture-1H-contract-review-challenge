@@ -8,7 +8,7 @@ from .cues import CUES
 
 # Matches the training notebook; provisional until threshold provenance is verified.
 DEFAULT_THRESHOLD = 0.5
-CUE_VERSION = '0.6-provisional'
+CUE_VERSION = '0.12-provisional'
 BOUNDARY = re.compile(r'(?<=[.!?])[ \t]+|\n[ \t]*\n+')
 QUALIFIER = re.compile(r'\b(?:except|notwithstanding|provided that|subject to|unless|however|section|schedule|exhibit)\b', re.I)
 
@@ -16,7 +16,15 @@ QUALIFIER = re.compile(r'\b(?:except|notwithstanding|provided that|subject to|un
 OPERATIVE = re.compile(r"\b(?:shall|may|will|must|is|are|has|have|grants?|agrees?|acknowledges?|assigns?|pays?|provides?|maintains?|appl(?:y|ies)|means|includes?|constitutes?|continues?|permits?|covers?|audit(?=\s+(?:all|only|such|the|records))|inspect(?=\s+(?:all|only|such|the|records)))\b", re.I)
 
 
-def is_heading(text):
+def is_assignment_heading(text):
+    return bool(re.fullmatch(r'\s*(?:\d+(?:\.\d+)*\.?\s+)?successors\s+and\s+assigns[.:]?\s*', text, re.I))
+
+
+def is_heading(text, category=None):
+    if category == 'Anti-Assignment' and is_assignment_heading(text):
+        return True
+    if category in {'Anti-Assignment', 'Cap On Liability'} and re.search(r'\b(?:requires?|states|constitutes)\b', text, re.I):
+        return False
     if re.fullmatch(r'\s*(?:\([a-z0-9]+\)\s*)?(?:additional\s+)?actions?\s+to\s+assign\s+interests?[.:]?\s*', text, re.I):
         return True
     return len(text.split()) <= 16 and not OPERATIVE.search(text)
@@ -27,7 +35,61 @@ def is_contents_entry(text):
         r'\.{3,}|\btable of contents\b|\b\d+\s+(?:Section|Article)\s+\d|[A-Za-z]\s+\d+\s*$', text, re.I))
 
 
-def following_provision(text, start, end, source, chunk_start):
+def is_license_definition(text):
+    return bool(re.search(
+        r'^\s*(?:\d+(?:\.\d+)*\s+)?["\u201c]?[A-Za-z][\w -]{0,45}["\u201d]?\s+(?:shall\s+)?means\b|\bis\s+defined\s+as\b', text, re.I))
+
+
+def license_grant_present(text):
+    """Recognize an affirmative grant, not a definition or denial of one."""
+    for left, right in _segments(text):
+        sentence = text[left:right]
+        if is_license_definition(sentence) or re.search(r'\b(?:nothing|not|no|never|neither)\b', sentence, re.I):
+            continue
+        if re.search(r'\bgrants?\b[^.!?;]{0,180}\b(?:rights?|licen[cs]e)\b', sentence, re.I):
+            return True
+    return False
+
+
+def license_nonoperative_reason(text):
+    if license_grant_present(text):
+        return None
+    if re.search(r'\b(?:nothing|no|not|never|neither)\b[^.!?;]{0,140}\bgrant\w*\b', text, re.I):
+        return 'license_grant_denied_not_established'
+    if any(is_license_definition(text[left:right]) for left, right in _segments(text)):
+        return 'license_definition_without_grant'
+    return None
+
+
+def audit_permission_present(text):
+    """Require permission plus an audit action and its object, not 'audit' alone.
+
+    This is relevance evidence only; negation and exceptions still go through
+    the scorer's existing uncertainty checks.
+    """
+    action = r'(?:audit|inspect|examine|review|verify|conduct\s+(?:reasonable\s+)?inspection)'
+    objects = r'(?:books|records|accounts|premises|facilities|locations?|compliance|procedures|equipment|expenses|program|reports|quality|services|performance)'
+    for left, right in _segments(text):
+        sentence = text[left:right]
+        # Ignore only the internal inspection phrase, not other permissions in
+        # the sentence. This temporary mask never changes exported source text.
+        sentence = re.sub(
+            r'\bmay\s+' + action + r'\s+(?:its|their)\s+(?:own\s+)?(?:books|records|premises|facilities|trailers)\b',
+            lambda match: ' ' * len(match.group()), sentence, flags=re.I)
+        if re.search(
+                r'\b(?:may|right\s+to|shall\s+permit|agrees?\s+to\s+allow|allow)\b[^.!?;]{0,120}\b' + action
+                + r'\b[^.!?;]{0,140}\b' + objects + r'\b|'
+                r'\b' + objects + r'\b[^.!?;]{0,100}\b(?:may\s+be\s+(?:inspected|audited)|shall\s+be\s+open\s+for\s+inspection|will\s+be\s+open\s+for\s+inspection)\b|'
+                r'\bparties\s+' + action + r'\s+(?:all|only|the)\s+(?:books|records)\b', sentence, re.I):
+            return True
+        # Access to specified records expressly for the counterparty's review
+        # is also permission; merely supplying financial statements is not.
+        if re.search(r'\bshall\s+provide\s+copies\b[^.!?;]{0,120}\brecords\b[^.!?;]{0,450}\benable\b[^.!?;]{0,180}\b(?:representatives|auditors)\b[^.!?;]{0,300}\bverify\s+compliance\b', sentence, re.I):
+            return True
+    return False
+
+
+def following_provision(text, start, end, source, chunk_start, category=None, require_grant=False, require_audit=False):
     extended = text
     for offset in range(chunk_start + len(text), chunk_start + len(text) + 2000):
         if offset not in source:
@@ -39,15 +101,37 @@ def following_provision(text, start, end, source, chunk_start):
         return end, False
     next_start, next_end = following[0]
     passage = extended[next_start:next_end].strip()
-    if is_contents_entry(passage) or is_heading(passage):
+    if is_contents_entry(passage) or is_heading(passage, category):
+        return end, False
+    if require_grant and not license_grant_present(passage):
+        return end, False
+    if require_audit and not audit_permission_present(passage):
         return end, False
     recovered_end = next_end
+    if category == 'Audit Rights' and not audit_permission_present(passage) and len(following) > 1:
+        left, right = following[1]
+        adjacent = extended[left:right].strip()
+        if not is_heading(adjacent, category) and audit_permission_present(adjacent):
+            recovered_end = right
+    # Successor boilerplate often separates this heading from the transfer rule.
+    # Recover only the immediately adjacent assignment provision, never scan
+    # past another heading or unrelated text to manufacture category support.
+    if (category == 'Anti-Assignment' and is_assignment_heading(text[start:end])
+            and re.search(r'\bsuccessors\s+and\s+(?:permitted\s+)?assigns\b', passage, re.I)
+            and len(following) > 1):
+        left, right = following[1]
+        adjacent = extended[left:right].strip()
+        if (not is_heading(adjacent, category) and not is_contents_entry(adjacent)
+                and re.search(r'\bassign(?:ment|ed)?\b', adjacent, re.I)):
+            recovered_end = right
     for next_start, next_end in following[1:]:
+        if next_end <= recovered_end:
+            continue
         passage = extended[next_start:next_end].strip()
         if not QUALIFIER.search(passage):
             break
         qualification = re.match(r'(?:except|unless|however|notwithstanding|provided that|subject to)\b', passage, re.I)
-        if is_contents_entry(passage) or (is_heading(passage) and not qualification):
+        if is_contents_entry(passage) or (is_heading(passage, category) and not qualification):
             break
         recovered_end = next_end
     complete = extended[:recovered_end].rstrip().endswith(('.', '!', '?'))
@@ -119,9 +203,15 @@ def extract_evidence(frame, categories, threshold=DEFAULT_THRESHOLD,
                 passage = text[start:end]
                 if is_contents_entry(passage):
                     localization = 'table_of_contents'
-                elif is_heading(passage):
-                    end, complete = following_provision(text, start, end, sources[row['title']], int(row['char_start']))
+                elif category == 'License Grant' and license_nonoperative_reason(passage):
+                    end, complete = following_provision(text, start, end, sources[row['title']], int(row['char_start']), category, require_grant=True)
+                    localization = ('heuristic_passage' if complete else 'incomplete_provision') if end > segments[index][1] else 'heuristic_passage'
+                elif is_heading(passage, category):
+                    end, complete = following_provision(text, start, end, sources[row['title']], int(row['char_start']), category)
                     localization = ('heuristic_passage' if complete else 'incomplete_provision') if end > segments[index][1] else 'heading_only'
+                elif category == 'Audit Rights' and not audit_permission_present(passage):
+                    end, complete = following_provision(text, start, end, sources[row['title']], int(row['char_start']), category, require_audit=True)
+                    localization = ('heuristic_passage' if complete else 'incomplete_provision') if end > segments[index][1] else 'heuristic_passage'
                 else:
                     localization = 'heuristic_passage'
                 if localization == 'heuristic_passage' and end == segments[index][1] and index + 1 < len(segments):

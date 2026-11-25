@@ -1,5 +1,6 @@
 """Synthetic pipeline and output checks."""
 import json
+from copy import deepcopy
 from pathlib import Path
 import subprocess
 import sys
@@ -9,7 +10,8 @@ import unittest
 import pandas as pd
 
 from risk_scoring.io import DEFAULT_PREDICTIONS, DEFAULT_CHUNKS
-from risk_scoring.run import create_synthetic_inputs, run_pipeline, OUTPUTS, CLAUSE_COLUMNS
+from risk_scoring.run import create_synthetic_inputs, run_pipeline, OUTPUTS, CLAUSE_COLUMNS, assessment_fields
+from test_contextual_scoring import score
 
 
 class PipelineTests(unittest.TestCase):
@@ -42,6 +44,47 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(json.loads((output / 'run_manifest.json').read_text()), manifest)
         self.assertEqual(len(manifest['configuration']['detection_thresholds']), 41)
         self.assertTrue(all(len(info['sha256']) == 64 for info in manifest['inputs'].values()))
+
+    def test_default_zero_is_not_verified_and_scoring_is_untouched(self):
+        finding = score('The license covers the project.', 'License Grant')
+        original = deepcopy(finding)
+        fields = assessment_fields(finding)
+        self.assertEqual(fields['imbalance_assessment_status'], 'unverified_default')
+        self.assertEqual(fields['assessment_status'], 'human_review_required')
+        self.assertEqual(fields['score_basis'], 'provisional_triage')
+        self.assertEqual(finding, original)
+
+    def test_one_supported_signal_does_not_establish_full_assessment(self):
+        finding = score('Either party may terminate this Agreement for convenience.', 'Termination For Convenience')
+        fields = assessment_fields(finding)
+        self.assertEqual(fields['imbalance_assessment_status'], 'wording_rule_supported')
+        self.assertEqual(fields['severity_assessment_status'], 'unverified_default')
+        self.assertEqual(fields['assessment_status'], 'human_review_required')
+
+    def test_uncertainty_and_conflicts_override_support(self):
+        for text in ['Audit costs are unlimited except as provided in Section 4.',
+                     'Audit costs are unlimited. Audit costs are limited to a fixed fee.']:
+            fields = assessment_fields(score(text, 'Audit Rights'))
+            self.assertEqual(fields['exposure_assessment_status'], 'deferred_for_review')
+            self.assertEqual(fields['assessment_status'], 'human_review_required')
+        finding = score('The parties audit all books and records.', 'Audit Rights')
+        finding['numeric_score_status'] = 'deferred_review'
+        self.assertEqual(assessment_fields(finding)['scope_assessment_status'], 'deferred_for_review')
+
+    def test_assessment_export_does_not_replace_triage(self):
+        output = self.root / 'assessments'
+        run_pipeline(self.predictions, self.chunks, output, data_split='synthetic')
+        clauses = pd.read_parquet(output / 'clause_risks.parquet')
+        contracts = pd.read_csv(output / 'contract_risks.csv').set_index('contract_id')
+        self.assertTrue(clauses.score_basis.eq('provisional_triage').all())
+        self.assertTrue(contracts.score_basis.eq('provisional_triage').all())
+        self.assertEqual(contracts.loc['synthetic-medium', 'risk_level'], 'Medium')
+        self.assertEqual(contracts.loc['synthetic-medium', 'assessment_status'], 'human_review_required')
+        self.assertEqual(contracts.loc['synthetic-no-detection', 'assessment_status'], 'human_review_required')
+        self.assertEqual(contracts.loc['synthetic-high', 'assessment_status'], 'wording_supported_not_human_reviewed')
+        for row in clauses.to_dict('records'):
+            self.assertEqual(row['risk_total'], json.loads(row['finding_json'])['risk_total'])
+            self.assertEqual(row['assessment_status'], assessment_fields(json.loads(row['finding_json']))['assessment_status'])
 
     def test_empty_detections_have_stable_outputs(self):
         output = self.root / 'empty'

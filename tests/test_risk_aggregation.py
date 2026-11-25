@@ -108,7 +108,7 @@ class AggregationTests(unittest.TestCase):
     def test_synthetic_pipeline(self):
         fixture = test_risk_evidence.EvidenceTests()
         fixture.setUp()
-        chunks = fixture.joined(text='Intro. Audit costs are unlimited. End.')
+        chunks = fixture.joined(text='Intro. Customer may inspect Supplier records; audit costs are unlimited. End.')
         scored = score_clauses(extract_evidence(chunks, fixture.categories))
         result = aggregate_contracts(scored, contract_ids=['contract-A', 'no-detections'])
         self.assertEqual(result[0]['triage_score'], 4)

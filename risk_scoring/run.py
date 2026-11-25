@@ -21,9 +21,11 @@ CLAUSE_COLUMNS = ['contract_id', 'evidence_id', 'category', 'original_text', 'ch
                   'max_detection_probability', 'localization', 'needs_review', 'finding_index',
                   'evidence_group_id', 'included_in_risk_groups', 'eligible_for_primary_triage',
                   'included_in_triage', 'risk_status', 'numeric_score_status', 'finding_json']
+CLAUSE_COLUMNS += [signal + '_assessment_status' for signal in SIGNALS] + ['score_basis', 'assessment_status']
 CONTRACT_COLUMNS = ['contract_id', 'triage_score', 'risk_level', 'high_groups', 'medium_groups',
                     'low_groups', 'evidence_group_count', 'clause_finding_count', 'excluded_finding_count',
                     'needs_review', 'risk_status', 'evidence_groups_json']
+CONTRACT_COLUMNS += ['score_basis', 'assessment_status']
 FLAG_COLUMNS = ['contract_id', 'category', 'evidence_id', 'group_id', 'flag', 'detail',
                 'max_detection_probability', 'threshold']
 
@@ -31,6 +33,27 @@ FLAG_COLUMNS = ['contract_id', 'category', 'evidence_id', 'group_id', 'flag', 'd
 def file_info(path):
     path = Path(path).resolve()
     return {'path': str(path), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()}
+
+
+def assessment_fields(finding):
+    """Export-only provenance labels; never alter scores or eligibility.
+
+    Deferred evidence overrides rule support. Unmatched or context-only rules
+    never turn defaults into supported assessments, including default zeroes.
+    """
+    statuses = {}
+    for signal in SIGNALS:
+        deferred = finding.get('numeric_score_status') == 'deferred_review' or any(
+            match['signal'] == signal and match['status'] in {'deferred_uncertainty', 'deferred_conflict'}
+            for match in finding.get('rule_matches', []))
+        statuses[signal + '_assessment_status'] = (
+            'deferred_for_review' if deferred else
+            'wording_rule_supported' if finding.get('signal_sources', {}).get(signal) == 'wording_rule_provisional'
+            else 'unverified_default')
+    supported = all(value == 'wording_rule_supported' for value in statuses.values())
+    return {**statuses, 'score_basis': 'provisional_triage',
+            'assessment_status': ('wording_supported_not_human_reviewed' if supported and not finding.get('needs_review')
+                                  else 'human_review_required')}
 
 
 def run_pipeline(predictions_path, chunks_path, output_dir, threshold=DEFAULT_THRESHOLD, data_split='development', alignment_audit=None):
@@ -52,10 +75,14 @@ def run_pipeline(predictions_path, chunks_path, output_dir, threshold=DEFAULT_TH
     clause_rows, contract_rows, flags = [], [], []
     for contract in contracts:
         contract_id = contract['contract_id']
+        substantive_assessments = []
         group_ids = {index: group['group_id'] for group in contract['evidence_groups'] for index in group['finding_indices']}
         for index, finding in enumerate(contract['clause_findings']):
             row = {key: finding[key] for key in CLAUSE_COLUMNS if key in finding}
             row.update(finding['risk_scores'])
+            row.update(assessment_fields(finding))
+            if finding['substantive_evidence']:
+                substantive_assessments.append(row['assessment_status'])
             row.update(finding_index=index, evidence_group_id=group_ids.get(index),
                        included_in_risk_groups=index in group_ids,
                        eligible_for_primary_triage=index in group_ids and finding['substantive_evidence'],
@@ -72,6 +99,11 @@ def run_pipeline(predictions_path, chunks_path, output_dir, threshold=DEFAULT_TH
             'excluded_finding_count': len(contract['excluded_finding_indices']),
             'needs_review': contract['needs_review'], 'risk_status': contract['risk_status'],
             'evidence_groups_json': json.dumps(contract['evidence_groups'], sort_keys=True),
+            'score_basis': 'provisional_triage',
+            'assessment_status': ('wording_supported_not_human_reviewed'
+                                  if substantive_assessments and not contract['needs_review']
+                                  and all(status == 'wording_supported_not_human_reviewed' for status in substantive_assessments)
+                                  else 'human_review_required'),
         })
         for flag in contract['review_flags']:
             index = flag.get('finding_index')
@@ -91,7 +123,7 @@ def run_pipeline(predictions_path, chunks_path, output_dir, threshold=DEFAULT_TH
     distribution = dict.fromkeys(['Low', 'Medium', 'High', 'Review Required'], 0)
     distribution.update(Counter(contract['risk_level'] for contract in contracts))
     manifest = {
-        'pipeline_version': '0.1-provisional', 'data_split': data_split,
+        'pipeline_version': '0.11-provisional', 'data_split': data_split,
         'alignment_audit': alignment_audit,
         'started_at_utc': started, 'completed_at_utc': datetime.now(timezone.utc).isoformat(),
         'inputs': {'predictions': file_info(predictions_path), 'chunks': file_info(chunks_path),

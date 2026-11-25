@@ -349,3 +349,111 @@ All 95 tests pass. Validation contract counts remain 0 Low, 53 Medium, 0 High,
 and 8 Review Required. Across 2,476 findings, applied wording-rule coverage rises
 from 6 to 7 findings and actual score changes from 2 to 3. Audit Rights accounts
 for the additional change. No profiles, thresholds, or aggregation rules changed.
+
+## Category-relevant evidence (v0.8)
+
+Anti-Assignment and Cap On Liability now require operative, category-relevant
+wording before contributing to numeric contract triage. Successor boilerplate,
+bare headings, indemnities without liability limits, and insurance listings alone
+do not establish those categories. Unsupported findings retain their original
+text and provisional scores for inspection, with
+`category_relevant_provision_not_established` and `deferred_review` status.
+
+Anti-Assignment recognizes “Successors and Assigns” as a heading and can recover
+an immediately following transfer provision across successor boilerplate, within
+the existing source buffer. Recovery preserves offsets and stops at another
+heading or unrelated text. Existing uncertainty checks still apply: BLACKBOX's
+recovered consent restriction remains deferred for unresolved negation, rather
+than becoming an approved numeric assessment. NETGEAR's insurance listing is
+excluded while its exclusive-remedy provision remains eligible.
+
+```sh
+python3 -B -m unittest discover -s tests -q
+python3 -B -m risk_scoring.run --validation --output-dir results/risk_scoring/validation-v0.8-category-evidence-final
+```
+
+All 105 tests pass. The real-input structure test now explicitly reads keyed
+validation artifacts rather than final test inputs. The final validation run has
+2,470 findings (v0.7: 2,476), 406 eligible substantive findings (435), and 2,018
+findings flagged for review (2,002). Contract distribution is 0 Low, 52 Medium,
+0 High, and 9 Review Required. IMAGEWARE moves from Medium to Review Required
+because its only eligible substantive finding was a successor heading. All 61
+contracts still carry review flags. All exported evidence offsets match the
+validation source; other categories' evidence, scores, eligibility, and review
+flags are unchanged. Signals, profiles, thresholds, and aggregation are unchanged.
+
+Use the `-final` directory; `validation-v0.8-category-evidence` is an intermediate
+run retained before preserving assignment-notification wording. These narrow
+relevance heuristics are not complete legal interpretation. Unrecognized wording
+requires review, and this remains validation-driven development rather than an
+independent risk-quality evaluation. Final test predictions were not used.
+
+## Ordinary grant and termination wording (v0.9)
+
+Two narrow rules recognize an express use-right grant directly qualified by
+“Solely for this purpose” and an express right for either/each party to terminate
+the agreement without cause or for convenience on the same stated terms. The
+grant rule affects only Scope; the termination rule affects only Imbalance.
+License adjectives alone, notice length, and mutuality do not independently
+establish low overall risk. Both rules defer for unresolved passage uncertainty
+and incomplete evidence. Exact quotations and source offsets remain available.
+
+```sh
+python3 -B -m unittest discover -s tests -q
+python3 -B -m risk_scoring.run --validation --output-dir results/risk_scoring/validation-v0.9-ordinary-wording
+```
+
+All 113 tests pass. NETGEAR's grant at character 27710 changes from 1/1/0/1 = 3
+to 1/0/0/1 = 2 (Severity/Scope/Imbalance/Exposure). This is a provisional clause
+Low under the unchanged rubric, not a contract clearance. MTI's termination at
+character 4140 remains 1/1/0/1 = 3; Imbalance changes from an unverified default
+to wording support. Both contracts remain Medium with a contract score of 3.
+
+Of 2,470 findings, one total changes versus v0.8; four totals now differ from
+their category defaults (previously three), and nine findings have applied
+wording rules (previously seven). There remain 406 eligible substantive findings
+and 2,018 findings flagged for review. Contract counts remain 0 Low, 52 Medium,
+0 High, and 9 Review Required. The two new rules match only the two intended
+validation passages; no new false positives were observed in those matches.
+MTI retains its existing merged-boundary review flag. Other phrasings outside
+these narrow templates remain unsupported; this is not a general language parser
+or an independent accuracy assessment. Profiles, thresholds, extraction, and
+aggregation are unchanged. Final test predictions were not used.
+
+## License evidence and use restrictions (v0.10)
+
+Standalone definitions and explicit denials cannot establish a License Grant
+numeric contribution. Their original text and provisional totals remain available
+for review. An immediately adjacent affirmative grant can be recovered across
+a chunk boundary using the existing bounded source buffer; recovery never skips
+unrelated text or headings and retains qualifications and exact offsets.
+Retained ownership alongside an affirmative grant does not exclude that grant.
+
+Narrow use-restriction rules recognize the MTI marketing/reference purpose,
+BLUEFLY services restriction, and ACCURAY product-combination restriction. Only
+Scope changes. Recognized use restrictions combined with worldwide rights defer
+Scope and numeric triage with `license_scope_dimensions_conflict`; the pipeline
+does not resolve competing scope dimensions. Existing uncertainty checks remain.
+
+```sh
+python3 -B -m unittest discover -s tests -q
+python3 -B -m risk_scoring.run --validation --output-dir results/risk_scoring/validation-v0.10-license-context-final
+```
+
+All 122 tests pass. The final run retains 2,470 findings. Eligible substantive
+findings decrease from 406 to 401; eligible findings using entirely unverified
+defaults decrease from 398 to 390. Findings flagged for review increase from
+2,018 to 2,023. MTI's definition and KALLO's denial retain inspection totals of
+3 but are excluded from contract scores and flagged for review. The MTI,
+BLUEFLY, and ACCURAY restricted grants change from 1/1/0/1 = 3 to 1/0/0/1 = 2;
+BLUEFLY and ACCURAY retain merged-boundary review flags. A fourth restriction
+match in a truncated Playboy passage remains deferred, not a numeric adjustment.
+
+Contract counts remain 0 Low, 52 Medium, 0 High, and 9 Review Required. Other
+categories' evidence and scores are unchanged; all exported offsets match the
+validation source. No new false positives were observed among the changed
+eligible findings. Pattern coverage remains limited and tests do not establish
+independent risk accuracy. Profiles, thresholds, signals, and aggregation are
+unchanged; final test predictions were not used. Use the `-final` directory;
+the intermediate v0.10 directory is retained from before clarifying review-reason
+labels for localized but unsupported evidence.

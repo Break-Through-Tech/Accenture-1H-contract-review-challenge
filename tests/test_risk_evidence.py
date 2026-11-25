@@ -1,5 +1,7 @@
 """Synthetic fixtures test implementation behavior, not human risk judgments."""
 import unittest
+import tempfile
+from pathlib import Path
 
 import pandas as pd
 
@@ -107,12 +109,21 @@ class EvidenceTests(unittest.TestCase):
         r = extract_evidence(self.joined(text=text), self.categories)[0]
         self.assertEqual(r['original_text'], 'Audit rights apply')
 
-    def test_real_input_structure_only(self):
-        # Integration check only: no inspection or tuning against test wording.
-        frame, categories = load_prediction_chunks()
-        self.assertEqual(frame.shape, (2898, 46))
-        self.assertEqual(frame.title.nunique(), 102)
+    def test_file_input_structure_only(self):
+        # Exercise the real Parquet loader with reproducible, label-bearing inputs.
+        predictions, chunks = self.fixture()
+        predictions = pd.concat([predictions, predictions.assign(title='contract-B')], ignore_index=True)
+        chunks = pd.concat([chunks, chunks.assign(title='contract-B')], ignore_index=True)
+        with tempfile.TemporaryDirectory() as directory:
+            inputs = Path(directory)
+            predictions.iloc[::-1].to_parquet(inputs / 'predictions.parquet', index=False)
+            chunks.to_parquet(inputs / 'chunks.parquet', index=False)
+            frame, categories = load_prediction_chunks(inputs / 'predictions.parquet', inputs / 'chunks.parquet')
+        self.assertEqual(frame.shape, (2, 46))
+        self.assertEqual(frame.title.nunique(), 2)
         self.assertEqual(categories, self.categories)
+        self.assertEqual(frame.title.tolist(), ['contract-A', 'contract-B'])
+        self.assertEqual(frame['Audit Rights'].tolist(), [.8, .8])
 
 
 if __name__ == '__main__':

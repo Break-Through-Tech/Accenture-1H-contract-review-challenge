@@ -4,10 +4,10 @@ import re
 from pathlib import Path
 
 from .io import load_categories
-from .evidence import _segments
+from .evidence import _segments, is_heading, license_nonoperative_reason, audit_permission_present
 
 PROFILE_PATH = Path(__file__).parent / 'config/category_profiles.json'
-RULE_VERSION = '0.7-provisional'
+RULE_VERSION = '0.12-provisional'
 SIGNALS = ('severity', 'scope', 'imbalance', 'exposure')
 INFORMATIONAL = {'Agreement Date', 'Document Name', 'Effective Date', 'Expiration Date', 'Governing Law', 'Parties'}
 CONTEXT_ONLY_RULES = {'audit_frequency_limit', 'assignment_void_consequence', 'audit_own_expense'}
@@ -86,10 +86,24 @@ RULES = [
     ('transition_unbounded', ('Post-Termination Services',), 'exposure', r'transition service costs are unlimited', 2, 'Transition costs are expressly unbounded.'),
     ('exit_unilateral', ('Termination For Convenience',), 'imbalance', r'one party alone may terminate for convenience', 2, 'Only one party has the stated discretionary exit right.'),
     ('exit_reciprocal', ('Termination For Convenience',), 'imbalance', r'each party has identical termination rights', 0, 'The stated exit rights are reciprocal.'),
+    ('exit_either_party', ('Termination For Convenience',), 'imbalance',
+     r'(?:either|each) party may terminate (?:this|the) agreement (?:without cause|for convenience)'
+     r'(?: upon (?:[a-z-]+|\d+)(?: \(\d+\))? days[\x27\u2019]? (?:prior )?written notice to the other party)?(?=\s*[.!?]|\s*$)',
+     0, 'Both parties receive this same stated termination right; notice length does not establish severity or exposure.'),
+    ('license_purpose_restricted', ('License Grant',), 'scope',
+     r'solely for this purpose, (?:(?!(?:to|shall|must|may|will|can|pays?|maintains?|agrees?|requests?)\b)[\w&\x27-]+ ){1,6}grants? '
+     r'(?:[\w\x27-]+ ){1,3}a (?:non-exclusive, |royalty-free, |limited )*'
+     r'(?:right|license) to use (?:the )?[\w-]+(?=\s*[.!?]|\s*$)',
+     0, 'The purpose restriction directly qualifies the express grant of use rights; other signals remain unverified.'),
     ('exit_major_consequence', ('Termination For Convenience',), 'severity', r'termination immediately ends all operational services', 2, 'The stated consequence ends all operational services.'),
     ('license_worldwide', ('License Grant', 'Affiliate License-Licensee', 'Affiliate License-Licensor'),
      'scope', r'grant(?:s|ed)?[^.!?;]{0,160}?world[- ]?wide[^.!?;]{0,100}?(?:licen[cs]e|right)',
      2, 'The grant expressly has worldwide geographic scope; purpose and use restrictions still require review.'),
+    ('license_use_restricted', ('License Grant',), 'scope',
+     r'grants?[^.!?;]{0,140}?\b(?:license|right) to use '
+     r'(?:(?!\b(?:pay\w*|maintain\w*|report\w*|fees|shall|must)\b)[^.!?;]){1,180}?'
+     r'(?:solely for (?:such )?[\w -]+ purposes|solely in connection with (?:the )?[\w -]+|only in combination with (?:the )?[\w -]+)',
+     0, 'The stated use restriction directly limits the granted license; other risk dimensions remain unverified.'),
     ('license_perpetual', ('License Grant', 'Irrevocable Or Perpetual License'),
      'scope', r'(?:perpetual[^.!?;]{0,80}?licen[cs]e|licen[cs]e[^.!?;]{0,80}?in perpetuity)',
      2, 'The license expressly has perpetual duration; other dimensions remain subject to its terms.'),
@@ -183,6 +197,61 @@ def risk_level(total):
     return 'Low' if total <= 2 else 'Medium' if total <= 5 else 'High'
 
 
+def category_evidence_supported(text, category):
+    """Relevance only, not interpretation or a new severity rule.
+
+    Ignore headings; require operative transfer terms or liability/remedy
+    limitations in the same sentence. Existing uncertainty checks still apply.
+    Other categories retain their existing eligibility policy.
+    """
+    if category == 'Audit Rights':
+        return audit_permission_present(text)
+    if category == 'Exclusivity':
+        # Only reject the two known non-operative forms, and retain passages
+        # containing a separate positive commitment (including mixed periods).
+        nonexclusive_pattern = r'\bnon(?:\s*-\s*|\s+)exclusive\b'
+        # Mask only non-exclusive wording while checking for a separate
+        # positive commitment. Preserve original evidence and offsets.
+        commitment_text = re.sub(nonexclusive_pattern, lambda match: ' ' * len(match.group()), text, flags=re.I)
+        exclusive = r'\bexclusiv(?:e|ely)\b'
+        commitment = re.search(
+            r'\b(?:shall|will|must|is|are|agrees?\s+to)\b[^.!?;]{0,180}' + exclusive + r'|'
+            r'\b(?:grants?|appoints?)\b[^.!?;]{0,100}' + exclusive + r'|'
+            r'\bpurchases?\b[^.!?;]{0,100}\bexclusively\b', commitment_text, re.I)
+        nonexclusive = re.search(nonexclusive_pattern, text, re.I)
+        definition = re.search(r'\b(?:means|defined\s+as|deemed)\b', text, re.I)
+        return bool(commitment) or not (nonexclusive or definition)
+    if category not in {'Anti-Assignment', 'Cap On Liability'}:
+        return True
+    for left, right in _segments(text):
+        sentence = text[left:right].strip()
+        if is_heading(sentence, category):
+            continue
+        if category == 'Anti-Assignment':
+            transfer = re.search(r'\b(?:assign(?:ment|ed|ee|ees)?|transfer(?:red|able|s)?)\b', sentence, re.I)
+            terms = re.search(
+                r'\b(?:consent\w*|approv\w*|prohibit\w*|restrict\w*|void|notify|notification|'
+                r'non[- ]assignable|non[- ]transferable|may\s+(?:not\s+)?(?:assign|transfer)|'
+                r'(?:assignments?|transfers?)\s+(?:is|are|shall\s+be)\s+(?:permitted|allowed)|'
+                r'fully\s+transferable|entitled\s+to\s+(?:assign|transfer)|'
+                r'remain\s+(?:liable|bound)|agree\s+in\s+writing\s+to\s+be\s+bound)\b', sentence, re.I)
+            if transfer and terms:
+                return True
+        else:
+            if re.search(
+                    r'\b(?:liabilit(?:y|ies)|damages)\b(?!\s+insurance\b)[^.!?;]{0,240}\b(?:limited\s+to|capped\s+at|shall\s+not\s+exceed)\b|'
+                    r'\bremedies\s+shall\s+be\s+limited\s+to\b|'
+                    r'\bin\s+no\s+event\b[^.!?;]{0,240}\b(?:liability|liable)\b[^.!?;]{0,160}\b(?:exceed|damages)\b|'
+                    r'\b(?:sole|exclusive)\s+(?:(?:obligation|liability)\s+and\s+)?remed(?:y|ies)\b[^.!?;]{0,240}\b(?:is|are|shall|will)\b|'
+                    r'\b(?:entire|sole)\s+liability\b[^.!?;]{0,240}\b(?:is|shall|will)\b|'
+                    r'\b(?:states|constitutes)\s+the\s+entire\s+liability\b|'
+                    r'\blimitation\s+of\s+liability\b[^.!?;]{0,240}\b(?:shall|is|applies)\b|'
+                    r'\b(?:neither\s+party|\w+\s+shall\s+not)\s+(?:be\s+)?liable\b',
+                    sentence, re.I):
+                return True
+    return False
+
+
 def score_evidence(evidence, profiles=None):
     """Score one record returned by extract_evidence, preserving its provenance."""
     profiles = load_profiles() if profiles is None else profiles
@@ -208,6 +277,7 @@ def score_evidence(evidence, profiles=None):
             ('broad_scope', (category,), 'scope', broad, 2, 'Explicit broad coverage.'),
             ('narrow_scope', (category,), 'scope', narrow, 0, 'Explicit restricted coverage.'),
         ]
+    uncertain = bool(UNCERTAINTY.search(KNOWN_LIMITS.sub('stated limit', text))) or '?' in text
     matches = []
     for rule_id, _, signal, pattern, value, explanation in rules:
         for match in re.finditer(r'\b(?:' + pattern.replace(' ', r'\s+') + r')\b', text, re.I):
@@ -217,17 +287,24 @@ def score_evidence(evidence, profiles=None):
                 'char_start': start + match.start(), 'char_end': start + match.end(),
                 'explanation': explanation,
                 'context_uncertain': match_is_uncertain(text, match.start(), match.end()) or (
+                    rule_id in {'license_purpose_restricted', 'license_use_restricted', 'exit_either_party'} and uncertain) or (
                     rule_id == 'audit_all_financial_records' and bool(re.search(
                         r'\b(?:only|solely|limited to|relevant to|relating to)\b', rule_context(text, match.start(), match.end()), re.I))) or (
                     rule_id in {'license_worldwide', 'license_perpetual'} and bool(re.search(
                         r'\b(?:only|solely|soley|limited to|subject always|for the duration|during the duration|prior\s+written\s+consent|for\s+the\s+term\s+of|with\s+respect\s+to\s+and\s+in\s+conjunction\s+with)\b', text, re.I))),
                 'context_only': rule_id in CONTEXT_ONLY_RULES,
             })
-    uncertain = bool(UNCERTAINTY.search(KNOWN_LIMITS.sub('stated limit', text))) or '?' in text
-    blocked = evidence.get('localization') != 'heuristic_passage' or evidence.get('usable_for_scoring') is False
+    if category == 'License Grant' and re.search(r'\bworld[- ]?wide\b', text, re.I) and any(
+            m['rule_id'].endswith((':license_purpose_restricted', ':license_use_restricted')) for m in matches):
+        reasons.add('license_scope_dimensions_conflict')
+        for match in matches:
+            if match['signal'] == 'scope':
+                match['context_uncertain'] = True
+    unlocalized = evidence.get('localization') != 'heuristic_passage' or evidence.get('usable_for_scoring') is False
+    blocked = unlocalized or (category == 'License Grant' and bool(license_nonoperative_reason(text)))
     if uncertain:
         reasons.add('negation_condition_or_reference_unresolved')
-    if blocked:
+    if unlocalized:
         reasons.add('wording_adjustments_deferred_for_unlocalized_text')
     signal_sources = dict.fromkeys(SIGNALS, 'profile_default_unverified')
     for signal in SIGNALS:
@@ -273,6 +350,14 @@ def score_evidence(evidence, profiles=None):
             for match in matches):
         eligible_for_triage = False
         reasons.add('unlimited_liability_not_established')
+    if not category_evidence_supported(text, category):
+        eligible_for_triage = False
+        substantive = False
+        reasons.add('category_relevant_provision_not_established')
+    if category == 'License Grant' and (reason := license_nonoperative_reason(text)):
+        eligible_for_triage = False
+        substantive = False
+        reasons.add(reason)
     insurance_matches = list(re.finditer(
             r'\b(?:shall|must|agrees? to|will|required to)\s+(?:at (?:its|their) (?:own )?expense,?\s+)?(?:maintain|carry|obtain|procure|provide|purchase)\b[^.!?;]{0,100}\binsurance\b', text, re.I))
     if category == 'Insurance' and not any(not match_is_uncertain(text, match.start(), match.end()) for match in insurance_matches):
