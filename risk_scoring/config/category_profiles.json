@@ -1,0 +1,1067 @@
+{
+  "schema_version": "1.0",
+  "profile_version": "0.1.0-proposed",
+  "status": "proposed_heuristics_not_human_labeled_ground_truth",
+  "advisor_review_status": "pending",
+  "category_source": "data/processed/categories.json",
+  "purpose": "Category-specific starting profiles for wording-based review; not final clause ratings or executable scoring rules.",
+  "principles": [
+    "Assess consequences and allocation neutrally between contracting parties. Swapping party names must not change a rating.",
+    "Defaults are provisional assumptions conditional on a correctly detected category; evaluate actual wording and context before assigning a final rating.",
+    "The wording cues are review considerations, not keyword-triggered score changes. Interpret negation, qualifications, linked provisions, and commercial context.",
+    "No profile asserts legal validity, enforceability, regulatory compliance, or a jurisdiction-specific conclusion.",
+    "Detection probability is separate from risk severity. Undetected does not mean absent; no missing-category penalty is authorized by these profiles.",
+    "Informational categories start at zero; identification or consistency concerns require review and do not automatically become high substantive risk.",
+    "An imbalance default of zero means no asymmetry is assumed from the category alone, not that balanced terms have been verified.",
+    "Unresolved information must be marked unknown or provisional later, not silently treated as confirmed low risk.",
+    "These profiles were not fitted to test predictions, test clause wording, or human risk annotations."
+  ],
+  "signal_definitions": {
+    "severity": "Consequence if the provision operates: 0 limited, 1 material, 2 major.",
+    "scope": "Breadth of affected conduct, assets, parties, territory, or duration: 0 narrow, 1 moderate, 2 broad.",
+    "imbalance": "Asymmetry of relevant rights, duties, or discretion: 0 no asymmetry assumed or evidenced, 1 some, 2 strong. Different commercial roles alone are insufficient.",
+    "exposure": "Magnitude or boundedness of financial or operational commitment: 0 limited, 1 material but bounded, 2 extensive or explicitly unbounded."
+  },
+  "default_interpretation": "Scores describe a proposed category prior, not verified wording. Shared vectors are intentional; category-specific cues and qualifications distinguish profiles. Material/bounded defaults are assumptions to verify, not inferred facts.",
+  "proposed_total_score_buckets": {
+    "Low": {
+      "min": 0,
+      "max": 2
+    },
+    "Medium": {
+      "min": 3,
+      "max": 5
+    },
+    "High": {
+      "min": 6,
+      "max": 8
+    }
+  },
+  "profiles": {
+    "Affiliate License-Licensee": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Extending licensed use to licensee affiliates can broaden access and commitments; asymmetry is not assumed.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Unrestricted affiliate classes; sublicensing onward; use beyond the agreed purpose."
+        ],
+        "could_decrease_risk": [
+          "Named affiliates; defined use; controls on onward access."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Check the definition of affiliate, changes in control, and responsibility for affiliate conduct."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Affiliate use is contemplated but permitted users or responsibility are unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Affiliate License-Licensor": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Including licensor-affiliate rights can broaden the grant and coordination needs; asymmetry is not assumed.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Unclear authority over affiliate rights; broad obligations covering future affiliates."
+        ],
+        "could_decrease_risk": [
+          "Identified rights and affiliates; clear authority and allocation of responsibilities."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Distinguish rights supplied by licensor affiliates from use by licensee affiliates; do not infer ownership or authority."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "The grant depends on rights held by licensor affiliates.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Agreement Date": {
+      "initial_scores": {
+        "severity": 0,
+        "scope": 0,
+        "imbalance": 0,
+        "exposure": 0
+      },
+      "starting_score_explanation": "A date is informational and does not itself establish commercial burden.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Conflicting dates linked to deadlines or obligations."
+        ],
+        "could_decrease_risk": [
+          "Consistent dates and a clear distinction between signing and commencement."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Agreement, execution, and effective dates can legitimately differ."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Timing depends on an agreement date that cannot be established elsewhere.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Anti-Assignment": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Transfer restrictions can affect operational flexibility without necessarily favoring either party.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Absolute prohibitions; unilateral consent discretion; broad indirect-transfer coverage."
+        ],
+        "could_decrease_risk": [
+          "Defined permitted transfers; clear consent process; objective conditions."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Read affiliate, merger, financing, and change-of-control exceptions together."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Transfers or restructuring are relevant and the transfer process is unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Audit Rights": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Audit provisions create access and resource obligations whose extent depends on safeguards.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Unrestricted frequency or access; broad cost shifting; access to unrelated sensitive information."
+        ],
+        "could_decrease_risk": [
+          "Notice; scope and frequency limits; confidentiality; proportionate cost allocation."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Regulatory or incident-triggered audits may need different access; distinguish audit rights from audit duties."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Verification of royalties, compliance, or service obligations is material.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Cap On Liability": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "A liability cap allocates consequences; neither its presence nor a larger or smaller cap is inherently lower risk for both parties.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Unclear cap basis; broad carve-outs; asymmetric coverage; mismatch with the obligations being capped."
+        ],
+        "could_decrease_risk": [
+          "Clear aggregate or per-event basis; explicit coverage; coordinated remedies and exceptions."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "A lower cap can limit one party’s exposure while limiting another’s recovery; assess both effects without deciding enforceability."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Material liability allocation requires review and no clear limitation framework is detected.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Change Of Control": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Control-change provisions can alter continuity and consent obligations.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Broad triggers; immediate consequences; unilateral discretion without defined conditions."
+        ],
+        "could_decrease_risk": [
+          "Defined triggers; exclusions; notice and transition processes."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Coordinate with assignment provisions and distinguish direct from indirect control changes."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Business continuity or planned ownership changes make control-change treatment relevant.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Competitive Restriction Exception": {
+      "initial_scores": {
+        "severity": 0,
+        "scope": 0,
+        "imbalance": 0,
+        "exposure": 0
+      },
+      "starting_score_explanation": "An exception usually qualifies another restriction and should not independently create assumed risk.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Ambiguous exception boundaries; conditions that undermine an otherwise usable exception."
+        ],
+        "could_decrease_risk": [
+          "Clear exclusions that narrow the linked restriction."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Evaluate with the underlying restriction; an exception is not a standalone adverse obligation or proof that all restrictions disappear."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "A detected competitive restriction appears to rely on an unresolved exception.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Covenant Not To Sue": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Limits on pursuing claims can affect remedies; breadth and reciprocity require wording review.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Broad claims or beneficiaries; indefinite coverage; unilateral waiver of substantial remedies."
+        ],
+        "could_decrease_risk": [
+          "Defined claims and duration; clear reservations and exceptions."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Distinguish a covenant from a release or license; do not infer validity or enforceability."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "A settlement or rights arrangement depends on clearly specified claim restrictions.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Document Name": {
+      "initial_scores": {
+        "severity": 0,
+        "scope": 0,
+        "imbalance": 0,
+        "exposure": 0
+      },
+      "starting_score_explanation": "A document title is metadata and carries no assumed substantive risk.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Title conflicts with referenced documents and creates identification uncertainty."
+        ],
+        "could_decrease_risk": [
+          "Consistent title and document references."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "The title alone does not determine the agreement’s obligations or legal classification."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Document identity or incorporation of another document is unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Effective Date": {
+      "initial_scores": {
+        "severity": 0,
+        "scope": 0,
+        "imbalance": 0,
+        "exposure": 0
+      },
+      "starting_score_explanation": "Commencement information alone does not establish a substantive burden.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Unclear triggers; conflicting commencement dates; obligations stated to begin before an ascertainable date."
+        ],
+        "could_decrease_risk": [
+          "Explicit date or verifiable commencement condition."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Retroactive commencement is context-dependent, not automatically adverse; distinguish execution from performance."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Obligation timing depends on an unresolved commencement date or condition.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Exclusivity": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Exclusivity can constrain alternatives; its business significance depends on coverage.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Broad products, territories, or duration; limited exit options; unilateral restrictions."
+        ],
+        "could_decrease_risk": [
+          "Narrow coverage; limited duration; explicit exceptions and exit mechanisms."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Distinguish exclusive supply, purchase, distribution, and licensing arrangements and their different obligations."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "An intended exclusive arrangement has unclear boundaries or exceptions.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Expiration Date": {
+      "initial_scores": {
+        "severity": 0,
+        "scope": 0,
+        "imbalance": 0,
+        "exposure": 0
+      },
+      "starting_score_explanation": "An end date is informational; consequences depend on linked term and survival provisions.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Conflicting end dates; unclear interaction with renewal or surviving obligations."
+        ],
+        "could_decrease_risk": [
+          "Clear end date or determinable term and coordinated renewal language."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "An indefinite agreement is not automatically defective; review termination provisions before inferring missing end mechanics."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Duration cannot be established through an end date, term, or termination mechanism.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Governing Law": {
+      "initial_scores": {
+        "severity": 0,
+        "scope": 0,
+        "imbalance": 0,
+        "exposure": 0
+      },
+      "starting_score_explanation": "A choice of law does not itself justify a high score or ranking of jurisdictions.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Conflicting choices; unclear scope across related documents."
+        ],
+        "could_decrease_risk": [
+          "Consistent, clearly scoped choice of law."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Do not infer jurisdiction-specific legal consequences; distinguish governing law from forum and dispute resolution."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Cross-border or related-document context makes an unresolved choice of law important to review.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Insurance": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Insurance requirements allocate coverage and administration obligations, while coverage may also mitigate exposure.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Unclear or extensive coverage obligations; mismatched limits and duties; unilateral change rights."
+        ],
+        "could_decrease_risk": [
+          "Specified coverage and evidence requirements; clear allocation and feasible timing."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Coverage adequacy needs business context; insurance limits are not automatically liability caps or guarantees of recovery."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Operational activities or express obligations make insurance arrangements relevant.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Ip Ownership Assignment": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Ownership transfers can materially affect control of assets, but the category alone does not establish breadth or imbalance.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Background or unrelated IP included; broad future-work coverage; unclear retained rights."
+        ],
+        "could_decrease_risk": [
+          "Defined deliverables; background-IP exclusions; explicit retained use rights."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Distinguish assignment from licensing and identify what rights each party contributes; do not infer ownership validity."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Work creation or IP transfer is central and ownership allocation is unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Irrevocable Or Perpetual License": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 2,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Express irrevocability or perpetual duration suggests broad temporal scope, subject to the actual grant and qualifications.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Broad rights or assets; no clear termination qualifications; extensive surviving obligations."
+        ],
+        "could_decrease_risk": [
+          "Narrow purpose and assets; explicit conditions and limited surviving duties."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Irrevocable and perpetual are different concepts; neither alone proves unlimited use or payment exposure."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Long-term licensed use is central and duration or revocation terms are unresolved.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Joint Ip Ownership": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Shared ownership creates coordination questions without inherently implying asymmetric rights.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Unclear licensing, enforcement, cost, or consent arrangements; unilateral control."
+        ],
+        "could_decrease_risk": [
+          "Explicit decision processes; defined use rights and cost allocation."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Do not assume default legal rules for joint owners; distinguish shared ownership from cross-licenses."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Joint development is contemplated and resulting ownership or use arrangements are unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "License Grant": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "A grant defines permitted use and associated commitments; risk depends on the rights and restrictions.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Vague assets or use; extensive sublicensing; unclear boundaries or dependencies."
+        ],
+        "could_decrease_risk": [
+          "Defined assets, users, purpose, duration, and permissions."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "A broad grant can benefit a recipient and burden a grantor; assess allocation neutrally alongside ownership and fees."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Licensed rights are necessary to performance but their grant or scope is unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Liquidated Damages": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Predetermined payment consequences create exposure that depends on triggers, amounts, and limits.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Repeated or uncapped accrual; unclear triggers; stacking with other payments."
+        ],
+        "could_decrease_risk": [
+          "Defined triggers and calculation; explicit caps; clear relationship to other remedies."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Do not conclude that an amount is a penalty or legally enforceable; amount significance requires commercial context."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "A referenced damages schedule or agreed payment mechanism cannot be located.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Minimum Commitment": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Minimum purchase, payment, or performance commitments can create obligations despite reduced demand.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Long fixed commitments; automatic escalation; few adjustment or exit mechanisms."
+        ],
+        "could_decrease_risk": [
+          "Defined limits; adjustment mechanisms; clear conditions and exceptions."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Differentiate purchase quantities, spending, and service commitments; amounts need an appropriate denominator."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Forecasting or payment duties depend on a referenced minimum that is unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Most Favored Nation": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Parity obligations can affect pricing or other terms across relationships.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Broad comparators; retrospective adjustments; extensive disclosure; unclear equivalence tests."
+        ],
+        "could_decrease_risk": [
+          "Defined comparable transactions; exclusions; clear adjustment process."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Identify whether parity concerns price or other terms; do not infer competition-law conclusions."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "An expressed parity arrangement depends on an unresolved comparison or adjustment mechanism.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "No-Solicit Of Customers": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Customer-solicitation restrictions can limit business activity depending on their reach.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "All customers or prospects; long duration; indirect activities broadly covered."
+        ],
+        "could_decrease_risk": [
+          "Defined customer group and conduct; limited duration; unsolicited-contact exceptions."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Distinguish solicitation from accepting business and general advertising; do not assess enforceability."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Customer restrictions are referenced but their coverage is unresolved.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "No-Solicit Of Employees": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Employee-solicitation restrictions can affect hiring flexibility.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "All personnel; broad hiring prohibition; extended duration."
+        ],
+        "could_decrease_risk": [
+          "Defined personnel; limited duration; general-recruitment and unsolicited-application exceptions."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Distinguish non-solicitation from no-hire language; role differences alone do not establish imbalance."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "A referenced workforce restriction or exception cannot be resolved.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Non-Compete": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Competitive activity restrictions can affect business flexibility; category presence alone does not establish severity.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Broad activities or territory; indefinite duration; restrictions on unrelated business."
+        ],
+        "could_decrease_risk": [
+          "Defined activities; limited duration and territory; explicit carve-outs."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Read exceptions and linked exclusivity terms; do not make jurisdiction-specific enforceability judgments."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "A referenced competition restriction has unresolved scope or duration.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Non-Disparagement": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Communication restrictions can affect conduct and remedies, depending on scope and exceptions.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Broad speakers or subject matter; indefinite coverage; unilateral obligations."
+        ],
+        "could_decrease_risk": [
+          "Defined communications and duration; reciprocal treatment where relevant; explicit protected disclosures."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Consider truthful statements, required disclosures, and reporting exceptions without inferring legal requirements."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "A communications restriction is referenced but its boundaries or exceptions are unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Non-Transferable License": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Non-transferability can constrain continuity or restructuring of licensed use.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Absolute transfer bar; broad indirect-transfer interpretation; unclear consent path."
+        ],
+        "could_decrease_risk": [
+          "Defined permitted transfers; clear consent and continuity arrangements."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Read assignment and change-of-control provisions together; distinguish transfer from sublicensing."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Licensed use must continue through contemplated transfers or restructuring.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Notice Period To Terminate Renewal": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Renewal notice mechanics can create unwanted continuation or planning burdens.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Narrow or unclear notice window; strict delivery conditions; long ensuing renewal."
+        ],
+        "could_decrease_risk": [
+          "Clear deadlines and delivery methods; practical notice window; defined correction process."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Neither longer nor shorter notice is universally safer; evaluate with renewal duration and termination rights."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Renewal applies but the opt-out deadline or notice process is unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Parties": {
+      "initial_scores": {
+        "severity": 0,
+        "scope": 0,
+        "imbalance": 0,
+        "exposure": 0
+      },
+      "starting_score_explanation": "Party identification is informational and does not imply unequal obligations.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Inconsistent entities; unclear affiliate inclusion; ambiguous responsibility."
+        ],
+        "could_decrease_risk": [
+          "Consistent legal-entity references and clear role definitions."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Different roles or entity sizes are not proof of imbalance; identity checks do not establish authority or capacity."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "The entities responsible for material duties cannot be clearly identified.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Post-Termination Services": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Continuing services can affect transition costs, resources, and operational dependence.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Open-ended duration or service scope; unclear payment; unilateral extension."
+        ],
+        "could_decrease_risk": [
+          "Defined transition period, services, fees, and responsibilities."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Distinguish service duties from confidentiality or other surviving obligations; evaluate continuity benefits as well as burdens."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Operational continuity requires a transition arrangement that is unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Price Restrictions": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Pricing constraints can affect commercial flexibility and financial outcomes.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Broad product coverage; indefinite restrictions; unilateral price-setting discretion."
+        ],
+        "could_decrease_risk": [
+          "Defined prices or formulas; bounded duration; clear adjustment mechanisms."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Distinguish price controls, discounts, and parity clauses; no competition-law conclusions are implied."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "A referenced pricing restriction or adjustment mechanism cannot be established.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Renewal Term": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Renewal mechanics can extend commitments and affect exit planning.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Repeated automatic renewals; long extensions; unclear opt-out mechanism."
+        ],
+        "could_decrease_risk": [
+          "Explicit renewal duration; affirmative consent or clear opt-out process."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Automatic renewal is not inherently adverse; assess with notice, pricing, and termination terms."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Continued performance is contemplated but renewal mechanics are unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Revenue/Profit Sharing": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Sharing formulas create payment and verification dependencies.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Unclear revenue or profit basis; broad deductions; unilateral calculation changes; uncapped duties."
+        ],
+        "could_decrease_risk": [
+          "Defined calculation base, deductions, reporting, and verification rights."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Revenue and profit are different bases; percentages alone do not determine severity or imbalance."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Payments depend on a sharing formula or reporting mechanism that is unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Rofr/Rofo/Rofn": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Priority offer, refusal, or negotiation rights can affect transaction timing and flexibility.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Broad transactions; long response windows; repeated restart rights; unclear triggers."
+        ],
+        "could_decrease_risk": [
+          "Defined transactions and timelines; explicit exceptions and release conditions."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Rights of first refusal, offer, and negotiation differ; do not treat them as interchangeable."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "A contemplated priority right has unresolved triggers or procedures.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Source Code Escrow": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Escrow creates deposit and access obligations while potentially supporting service continuity.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Unclear release triggers; stale deposits; extensive access or cost obligations."
+        ],
+        "could_decrease_risk": [
+          "Defined update duties, release conditions, verification, and permitted use."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Presence does not guarantee usable code or continuity; distinguish escrow deposit from release and ownership."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Software dependence makes continuity arrangements relevant and no clear mechanism is detected.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Termination For Convenience": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Discretionary exit rights affect flexibility and continuity for both parties.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Immediate unilateral exit; substantial stranded commitments; unclear transition or payments."
+        ],
+        "could_decrease_risk": [
+          "Clear notice; defined accrued payments; transition arrangements; balanced exit treatment where appropriate."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Mutual rights can still create exposure; one-sided rights may reflect different roles and require context."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Material ongoing commitments lack a clear discretionary-exit arrangement where one is expected.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Third Party Beneficiary": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Rights for nonparties can broaden affected interests and coordination needs.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Undefined beneficiary classes; broad independent rights; unclear limits."
+        ],
+        "could_decrease_risk": [
+          "Named or defined beneficiaries; specified rights and limitations."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Distinguish an affirmative grant from a statement denying third-party rights; do not infer enforcement rights from incidental benefit."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Nonparty rights are intended or referenced but their treatment is unclear.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Uncapped Liability": {
+      "initial_scores": {
+        "severity": 2,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 2
+      },
+      "starting_score_explanation": "Explicitly unbounded liability warrants a higher provisional consequence and exposure baseline; covered obligations still require review.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Broad covered claims; multiple extensive carve-outs; unilateral uncapped obligations."
+        ],
+        "could_decrease_risk": [
+          "Narrow covered obligations; explicit qualifications or other applicable limits."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "A detection is not proof of uncapped liability; distinguish express unlimited terms, cap exceptions, and silence. No enforceability conclusion is implied."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "A cap or carve-out references unlimited exposure whose scope is unresolved; absence of this category alone is not a concern.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Unlimited/All-You-Can-Eat-License": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 2,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "An unlimited-use grant suggests broad use scope, but does not itself imply unlimited monetary exposure.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Broad users, assets, or consumption; extensive unpriced support obligations."
+        ],
+        "could_decrease_risk": [
+          "Defined meaning of unlimited; bounded purpose or term; explicit support and usage conditions."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Unlimited seats, usage, and duration are different; inspect fees and operational commitments separately."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "An advertised unlimited-use arrangement has unclear boundaries or associated duties.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Volume Restriction": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Usage or volume limits can affect operations and additional charges.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Unclear measurement; abrupt suspension; extensive overage charges; unilateral limit changes."
+        ],
+        "could_decrease_risk": [
+          "Defined units and measurement period; notice; clear overage or adjustment process."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "A limit can bound exposure while restricting use; distinguish maximum limits from minimum commitments."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "Performance or fees depend on a volume limit that cannot be determined.",
+        "absence_alone_increases_risk": false
+      }
+    },
+    "Warranty Duration": {
+      "initial_scores": {
+        "severity": 1,
+        "scope": 1,
+        "imbalance": 0,
+        "exposure": 1
+      },
+      "starting_score_explanation": "Warranty periods affect both continuing obligations and availability of remedies.",
+      "wording_or_context_for_review": {
+        "could_increase_risk": [
+          "Unclear start or end; broad survival; mismatch with discovery or performance timing."
+        ],
+        "could_decrease_risk": [
+          "Explicit duration and triggers; coordinated remedies, notice, and survival terms."
+        ]
+      },
+      "exceptions_and_qualifications": [
+        "Longer coverage can increase one party’s obligations while protecting another; duration alone does not establish net risk."
+      ],
+      "missing_category_review": {
+        "may_require_review_depending_on_context": true,
+        "context": "A warranty is given but its duration or claim timing is unclear.",
+        "absence_alone_increases_risk": false
+      }
+    }
+  }
+}
